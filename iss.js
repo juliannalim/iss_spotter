@@ -26,18 +26,55 @@ const fetchMyIP = function (callback) {
   })
 };
 
-const fetchCoordsByIP = function (callback, ip = "65.95.234.201") {
+const fetchCoordsByIP = function (ip, callback) {
 
-  request('https://ipvigilante.com/' + ip, function (error, response, body) {
+  request('https://ipvigilante.com/json/' + ip, function (error, response, body) {
     if (error) {
       callback(error, null);
       return;
     }
-    // console.log(ip['data']);
+
+    if (response.statusCode !== 200) {
+      const msg = `Status Code ${response.statusCode} when fetching coordinates for IP. Response: ${body}`;
+      callback(Error(msg), null);
+      return;
+    }
+
     const { latitude, longitude } = JSON.parse(body).data;
-    callback(null, { latitude, longitude })
+
+    callback(null, { latitude, longitude });
+
   })
 }
 
-//module.exports = { fetchMyIP };
+const fetchISSFlyOverTimes = function (coords, callback) {
+  const url = `http://api.open-notify.org/iss-pass.json?lat=${coords.latitude}&lon=${coords.longitude}`;
+
+  request(url, (error, response, body) => {
+    if (error) {
+      callback(error, null);
+      return;
+    }
+
+    if (response.statusCode !== 200) {
+      callback(Error(`Status Code ${response.statusCode} when fetching ISS pass times: ${body}`), null);
+      return;
+    }
+
+
+    const location = JSON.parse(body).response;
+
+    callback(null, location);
+
+  });
+};
+
+// const nextISSTimesForMyLocation = function (callback) {
+//   return hello
+// }
+
+
+module.exports = { fetchMyIP };
 module.exports = { fetchCoordsByIP };
+module.exports = { fetchISSFlyOverTimes }; // runs undefined
+//module.exports = { nextISSTimesForMyLocation };
