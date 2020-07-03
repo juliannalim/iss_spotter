@@ -6,9 +6,9 @@
  *   - An error, if any (nullable)
  *   - The IP address as a string (null if error). Example: "162.245.144.188"
  */
+const request = require('request');
 const fetchMyIP = function (callback) {
   // use request to fetch IP address from JSON API
-  const request = require('request');
 
   request('https://api.ipify.org?format=json', function (error, response, body) {
     if (error) {
@@ -27,7 +27,6 @@ const fetchMyIP = function (callback) {
 };
 
 const fetchCoordsByIP = function (callback, ip = "65.95.234.201") {
-  const request = require('request');
 
   request('https://ipvigilante.com/' + ip, function (error, response, body) {
     if (error) {
@@ -35,7 +34,8 @@ const fetchCoordsByIP = function (callback, ip = "65.95.234.201") {
       return;
     }
     // console.log(ip['data']);
-    callback(null, JSON.parse(body)['data'])
+    const { latitude, longitude } = JSON.parse(body).data;
+    callback(null, { latitude, longitude })
   })
 }
 
